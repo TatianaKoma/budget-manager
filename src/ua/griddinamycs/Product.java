@@ -1,6 +1,6 @@
 package ua.griddinamycs;
 
-public class Product {
+public class Product   {
     private final String name;
     private final double price;
 
