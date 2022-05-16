@@ -1,8 +1,9 @@
 package ua.griddynamics;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Category {
+public class Category implements Serializable {
     private final String type;
     private double totalSum;
     private final ArrayList<Product> PRODUCTS = new ArrayList<>();

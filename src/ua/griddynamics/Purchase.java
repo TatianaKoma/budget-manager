@@ -171,7 +171,7 @@ public class Purchase {
             }
             System.out.println("\nAll: ");
             productsList.stream()
-                    .sorted(Comparator.comparing(Product::getPRICE).reversed())
+                    .sorted(Comparator.comparing(Product::getPRICE).reversed().thenComparing(Product::getNAME))
                     .forEach(System.out::println);
             System.out.println("Total sum: $" + String.format("%.2f", totalSum));
         }
