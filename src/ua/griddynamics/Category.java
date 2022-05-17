@@ -24,7 +24,7 @@ public class Category implements Serializable {
         return totalSum;
     }
 
-    boolean addProduct(Product product) {
+    public boolean addProduct(Product product) {
         if (product != null) {
             PRODUCTS.add(product);
             this.totalSum += product.getPRICE();

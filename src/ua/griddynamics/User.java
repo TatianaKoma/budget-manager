@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.InputMismatchException;
-import java.util.Scanner;
 
 public class User implements Serializable {
     private double balance;
@@ -23,32 +21,17 @@ public class User implements Serializable {
         return balance;
     }
 
-    void addIncomeFromMainMenu(Scanner scanner, User user) {
-        addIncome(scanner, user);
-    }
-
-    void showBalanceFromMainMenu(User user) {
-        showBalance(user);
-    }
-
-    private void addIncome(Scanner scanner, User user) {
-        try {
-            System.out.println("\nEnter income:");
-            income = scanner.nextDouble();
-            scanner.nextLine();
+    public void addIncome(double income, User user) {
             if (income < 0.0) {
                 System.out.println("Income must be positive! Try again:");
-                addIncome(scanner, user);
+                addIncome(income, user);
             }
-        } catch (InputMismatchException e) {
-            e.printStackTrace();
-        }
         this.balance += income;
         System.out.println("Income was added!\n");
         saveUserToFile(user);
     }
 
-    private void showBalance(User user) {
+    public void showBalance(User user) {
         boolean hasNext = true;
         if (!new File("purchases.txt").exists()) {
             System.out.println("\nBalance: $0.00\n");
@@ -71,7 +54,8 @@ public class User implements Serializable {
             System.out.println("\nBalance: $" + String.format("%.2f", user.getBalance()) + "\n");
         }
     }
-    void updateBalance(double price, User user) {
+
+    public void updateBalance(double price, User user) {
         if (this.balance >= price) {
             this.balance -= price;
         } else {

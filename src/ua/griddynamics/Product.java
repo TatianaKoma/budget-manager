@@ -15,10 +15,6 @@ public class Product implements Serializable {
         return this.PRICE;
     }
 
-    public String getNAME() {
-        return NAME;
-    }
-
     @Override
     public String toString() {
         return this.NAME + " $" + String.format("%.2f", this.PRICE);
