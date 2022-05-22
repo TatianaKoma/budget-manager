@@ -6,167 +6,190 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.stream.Collectors;
 
-public class Purchase {
+public class Purchase implements Serializable {
 
-    private static final Category FOOD = new Category("Food");
-    private static final Category CLOTHES = new Category("Clothes");
-    private static final Category ENTERTAINMENT = new Category("Entertainment");
-    private static final Category OTHER = new Category("Other");
-    private static final ArrayList<Category> ALL_PRODUCTS = new ArrayList<>();
+    private static final String FILE_NAME = "purchases.txt";
 
-    public static Category chooseType(int choice) {
-        switch (choice) {
-            case 1:
-                return FOOD;
-            case 2:
-                return CLOTHES;
-            case 3:
-                return ENTERTAINMENT;
-            case 4:
-                return OTHER;
-            default:
-        }
-        return null;
+    private Balance balance;
+    private List<Product> allProducts;
+
+    public Purchase() {
+        this.balance = new Balance();
+        this.allProducts = new ArrayList<>();
     }
 
-    public static void showList(int choice) {
-        double totalSum = 0.0;
-        if (choice == 5) {
-            showAll();
-        } else {
-            String type = Objects.requireNonNull(chooseType(choice)).getType();
-            for (Category c : ALL_PRODUCTS) {
-                if (c.getType().equals(type)) {
-                    System.out.println("\n" + c.getType() + ":");
-                    if (c.getPRODUCTS().isEmpty()) {
-                        System.out.println("The purchase list is empty!");
-                    } else {
-                        for (Product p : c.getPRODUCTS()) {
-                            totalSum += p.getPRICE();
-                            System.out.println(p);
-                        }
-                        System.out.println("Total sum: $" + String.format("%.2f", totalSum));
-                    }
-                }
-            }
-        }
+    public void addIncome(double income) {
+        this.balance.addIncome(income);
     }
 
-   public static void showAllSortedPurchases() {
-        if (!noPurchasesAtAll()) {
-            List<Product> productsList = new ArrayList<>();
-            double totalSum = 0.0;
-            for (Category c : ALL_PRODUCTS) {
-                totalSum += c.getTotalSum();
-                productsList.addAll(c.getPRODUCTS());
-            }
-            System.out.println("\nAll: ");
-            productsList.stream()
-                    .sorted(Comparator.comparing(Product::getPRICE).reversed())
-                    .forEach(System.out::println);
-            System.out.println("Total sum: $" + String.format("%.2f", totalSum));
-        }
+    public String showBalance() {
+        return balance.showBalance();
     }
 
-    public static void showSortByCategories() {
-        System.out.println("\nTypes: ");
-        double totalSumOfAll = 0.00;
-        Map<String, Double> mapForSorting = new HashMap<>();
-        for (Category c : ALL_PRODUCTS) {
-            totalSumOfAll += c.getTotalSum();
-            if (c.getPRODUCTS().isEmpty()) {
-                mapForSorting.put(c.getType(), 0.00);
-            } else {
-                double totalSum = 0;
-                for (Product p : c.getPRODUCTS()) {
-                    totalSum += p.getPRICE();
-                }
-                mapForSorting.put(c.getType(), totalSum);
-            }
-        }
-        mapForSorting.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .forEachOrdered(x -> System.out.println(x.getKey() + " $" + x.getValue()));
-        System.out.println("Total sum: $" + String.format("%.2f", totalSumOfAll));
+    public void reduceBalance(double delta) {
+        balance.reduceBalance(delta);
     }
 
-    public static void showCategory(int choice) {
-        Category c = chooseType(choice);
-        showSortInCategory(c.getType());
-    }
-
-    private static void showSortInCategory(String type) {
-        double totalSum = 0.00;
-        if (!noPurchasesAtAll()) {
-            for (Category c : ALL_PRODUCTS) {
-                if (c.getType().equals(type)) {
-                    System.out.println("\n" + c.getType() + ":");
-                    for (Product p : c.getPRODUCTS()) {
-                        totalSum += p.getPRICE();
-                    }
-                    c.getPRODUCTS().stream()
-                            .sorted(Comparator.comparing(Product::getPRICE).reversed())
-                            .forEach(System.out::println);
-                    System.out.println("Total sum: $" + String.format("%.2f", totalSum));
-                }
-            }
-        }
-    }
-
-    public static boolean noPurchasesAtAll() {
-        int counter = 0;
-        for (Category c : ALL_PRODUCTS) {
-            if (c.getPRODUCTS().isEmpty()) {
-                counter++;
-            }
-        }
-        if (counter == ALL_PRODUCTS.size()) {
-            System.out.println("\nThe purchase list is empty!");
+    public boolean addProduct(Product product) {
+        if (product != null) {
+            allProducts.add(product);
             return true;
         }
         return false;
     }
 
-    private static void showAll() {
-        double totalSum = 0.0;
-        System.out.println("\nAll:");
-        for (Category c : ALL_PRODUCTS) {
-            totalSum += c.getTotalSum();
-            c.getPRODUCTS().forEach(product -> System.out.println(product.toString()));
-        }
-        System.out.println("Total sum: $" + String.format("%.2f", totalSum));
+    public double getTotalSumByType(ProductType type) {
+        return allProducts.stream()
+                .filter(p -> p.getType() == type)
+                .mapToDouble(Product::getPrice)
+                .sum();
     }
 
-    public static void savePurchases(User user) {
-        try (FileOutputStream fileOutputStream = new FileOutputStream("purchases.txt");
-             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
-            objectOutputStream.writeObject(user);
-            objectOutputStream.writeObject(FOOD);
-            objectOutputStream.writeObject(CLOTHES);
-            objectOutputStream.writeObject(ENTERTAINMENT);
-            objectOutputStream.writeObject(OTHER);
+    public double getTotalSumOfAllProducts() {
+        return allProducts.stream()
+                .mapToDouble(Product::getPrice)
+                .sum();
+    }
 
+    public ProductType getType(int choice) {
+        return switch (choice) {
+            case 1 -> ProductType.FOOD;
+            case 2 -> ProductType.CLOTHES;
+            case 3 -> ProductType.ENTERTAINMENT;
+            case 4 -> ProductType.OTHER;
+            default -> throw new RuntimeException("Wrong input");
+        };
+    }
+
+    public String showList(int choice) {
+        int choiceForAll = 5;
+        StringBuilder sb = new StringBuilder();
+        if (choice == choiceForAll) {
+            return showAll();
+        } else if (isEmptyProductListByType(getType(choice))) {
+            sb.append("\n").append("The purchase list is empty!");
+        } else {
+            ProductType type = getType(choice);
+            sb.append("\n").append(type).append(":").append("\n");
+            for (Product p : allProducts) {
+                if (p.getType().equals(type)) {
+                    sb.append(p).append("\n");
+                }
+            }
+            sb.append("Total sum: $").append(String.format("%.2f", getTotalSumByType(type)));
+        }
+        return sb.toString();
+    }
+
+    public String showAllSortedPurchases() {
+        StringBuilder sb = new StringBuilder();
+        if (!isEmptyAllProductList()) {
+            sb.append("\nAll: \n");
+            String str = allProducts.stream()
+                    .sorted(Comparator.comparing(Product::getPrice).reversed())
+                    .map(Product::toString)
+                    .collect(Collectors.joining("\n"));
+            sb.append(str);
+            sb.append("\nTotal sum: $").append(String.format("%.2f", getTotalSumOfAllProducts()));
+            return sb.toString();
+        } else {
+            return "\nThe purchase list is empty!";
+        }
+    }
+
+    public String showSortByCategories() {
+        StringBuilder sb = new StringBuilder("\nTypes: \n");
+        Map<ProductType, Double> mapForSorting = new HashMap<>();
+        for (ProductType type : ProductType.values()) {
+            mapForSorting.put(type, getTotalSumByType(type));
+        }
+        String str = mapForSorting.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .map(entry -> entry.getKey() + " $" + String.format("%.2f", entry.getValue()))
+                .collect(Collectors.joining("\n"));
+        sb.append(str).append("\nTotal sum: $").append(String.format("%.2f", getTotalSumOfAllProducts()));
+        return sb.toString();
+    }
+
+    public String showCategory(int choice) {
+        return showSortInCategory(getType(choice));
+    }
+
+    private String showSortInCategory(ProductType type) {
+        StringBuilder sb = new StringBuilder();
+        if (!isEmptyProductListByType(type)) {
+            sb.append("\n").append(type).append(":\n");
+
+            String str = allProducts.stream()
+                    .filter(p -> p.getType().equals(type))
+                    .sorted(Comparator.comparing(Product::getPrice).reversed())
+                    .map(Product::toString)
+                    .collect(Collectors.joining("\n"));
+            sb.append(str);
+            sb.append("\nTotal sum: $").append(String.format("%.2f", getTotalSumByType(type)));
+            return sb.toString();
+        } else {
+            return "\nThe purchase list is empty!";
+        }
+    }
+
+    public boolean isEmptyAllProductList() {
+        return allProducts.size() == 0;
+    }
+
+    public boolean isEmptyProductListByType(ProductType type) {
+        int count = 0;
+        for (Product p : allProducts) {
+            if (p.getType().equals(type)) {
+                count++;
+            }
+        }
+        return count == 0;
+    }
+
+    private String showAll() {
+        StringBuilder sb = new StringBuilder();
+        if (allProducts.isEmpty()) {
+            sb.append("\nThe purchase list is empty!");
+        } else {
+            sb.append("\nAll:\n");
+            String str = allProducts.stream()
+                    .map(Product::toString)
+                    .collect(Collectors.joining("\n"));
+            sb.append(str);
+            sb.append("\nTotal sum: $").append(String.format("%.2f", getTotalSumOfAllProducts()));
+        }
+        return sb.toString();
+    }
+
+    public void savePurchases() {
+        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(FILE_NAME))){
+            objectOutputStream.writeObject(this);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static void loadPurchases() {
+    public void loadPurchase() {
         boolean hasNext = true;
-        if (new File("purchases.txt").exists()) {
-            try (FileInputStream fileInputStream = new FileInputStream("purchases.txt");
+        if (new File(FILE_NAME).exists()) {
+            try (FileInputStream fileInputStream = new FileInputStream(FILE_NAME);
                  ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
                 while (hasNext) {
                     if (fileInputStream.available() != 0) {
-                        Object object = objectInputStream.readObject();
-                        if (object instanceof Category)
-                            ALL_PRODUCTS.add((Category) object);
+                        Object obj = objectInputStream.readObject();
+
+                        if (obj instanceof Purchase purchase) {
+                            balance = purchase.balance;
+                            allProducts = purchase.allProducts;
+                        }
                     } else {
                         hasNext = false;
                     }
