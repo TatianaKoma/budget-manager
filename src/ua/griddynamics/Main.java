@@ -5,33 +5,31 @@ import java.util.Scanner;
 
 public class Main {
     private static final Scanner SCANNER = new Scanner(System.in);
-    private static final int EXIT_FROM_ADD_MENU = 5;
-    private static final int EXIT_FROM_SHOW_MENU = 6;
 
     public static void main(String[] args) {
         Purchase purchase = new Purchase();
         boolean quit = false;
         while (!quit) {
-            Menu.menuMain();
+            System.out.println(RootMenu.getMenuStr());
             int choice = SCANNER.nextInt();
             SCANNER.nextLine();
-            switch (choice) {
-                case 1:
+            switch (RootMenu.getInstance(choice)) {
+                case ADD_INCOME:
                     System.out.println("\nEnter income:");
                     double income = SCANNER.nextDouble();
                     SCANNER.nextLine();
                     purchase.addIncome(income);
                     System.out.println("Income was added!\n");
                     break;
-                case 2:
+                case ADD_PURCHASE:
                     addPurchase(purchase);
                     break;
-                case 3:
+                case SHOW_LIST_OF_PURCHASES:
                     while (true) {
-                        Menu.menuShowList();
+                        System.out.println(ShowListMenu.getMenuStr());
                         int choiceForShowList = SCANNER.nextInt();
                         SCANNER.nextLine();
-                        if (choiceForShowList == EXIT_FROM_SHOW_MENU) {
+                        if (ShowListMenu.getInstance(choiceForShowList).equals(ShowListMenu.BACK)) {
                             System.out.println();
                             break;
                         } else {
@@ -39,26 +37,26 @@ public class Main {
                         }
                     }
                     break;
-                case 4:
+                case BALANCE:
                     System.out.println(purchase.showBalance());
                     break;
-                case 5:
+                case SAVE:
                     purchase.savePurchases();
                     System.out.println("\nPurchases were saved!\n");
                     break;
-                case 6:
+                case LOAD:
                     purchase.loadPurchase();
                     System.out.println("\nPurchases were loaded!\n");
                     break;
-                case 7:
+                case ANALYZE:
                     showSort(purchase);
                     break;
-                case 0:
+                case EXIT:
                     quit = true;
                     System.out.println("\nBye!");
                     SCANNER.close();
                     break;
-                default:
+                case UNDEFINED:
                     System.out.println("\nSomething went wrong.\n");
             }
         }
@@ -68,10 +66,10 @@ public class Main {
         String name = null;
         double price = 0.0;
         while (true) {
-            Menu.menuAddPurchase();
+            System.out.println(AddPurchaseMenu.getMenuStr());
             int choice = SCANNER.nextInt();
             SCANNER.nextLine();
-            if (choice != EXIT_FROM_ADD_MENU) {
+            if (!AddPurchaseMenu.getInstance(choice).equals(AddPurchaseMenu.BACK)) {
                 try {
                     System.out.println("\nEnter purchase name:");
                     name = SCANNER.nextLine();
@@ -81,7 +79,7 @@ public class Main {
                 } catch (InputMismatchException e) {
                     e.printStackTrace();
                 }
-                if (purchase.addProduct(new Product(name, price, purchase.getType(choice)))) {
+                if (purchase.addProduct(new Product(name, price, ProductType.getInstance(choice)))) {
                     purchase.reduceBalance(price);
                     System.out.println("Purchase was added!");
                 } else {
@@ -97,21 +95,21 @@ public class Main {
     public static void showSort(Purchase purchase) {
         boolean isSortingStopped = false;
         while (!isSortingStopped) {
-            Menu.menuShowSort();
+            System.out.println(SortMenu.getMenuStr());
             int choice = SCANNER.nextInt();
-            switch (choice) {
-                case 1 -> System.out.println(purchase.showAllSortedPurchases());
-                case 2 -> System.out.println(purchase.showSortByCategories());
-                case 3 -> {
-                    Menu.menuCategory();
+            switch (SortMenu.getInstance(choice)) {
+                case SORT_ALL -> System.out.println(purchase.showAllSortedPurchases());
+                case SORT_TYPES -> System.out.println(purchase.showSortByCategories());
+                case SORT_IN_TYPE -> {
+                    System.out.println(ProductType.getMenuStr());
                     int choiceForCategory = SCANNER.nextInt();
                     System.out.println(purchase.showCategory(choiceForCategory));
                 }
-                case 4 -> {
+                case BACK -> {
                     isSortingStopped = true;
                     System.out.println();
                 }
-                default -> {
+                case UNDEFINED -> {
                 }
             }
         }

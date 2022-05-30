@@ -59,25 +59,14 @@ public class Purchase implements Serializable {
                 .sum();
     }
 
-    public ProductType getType(int choice) {
-        return switch (choice) {
-            case 1 -> ProductType.FOOD;
-            case 2 -> ProductType.CLOTHES;
-            case 3 -> ProductType.ENTERTAINMENT;
-            case 4 -> ProductType.OTHER;
-            default -> throw new RuntimeException("Wrong input");
-        };
-    }
-
     public String showList(int choice) {
-        int choiceForAll = 5;
         StringBuilder sb = new StringBuilder();
-        if (choice == choiceForAll) {
+        if (ShowListMenu.getInstance(choice).equals(ShowListMenu.BACK)) {
             return showAll();
-        } else if (isEmptyProductListByType(getType(choice))) {
+        } else if (isEmptyProductListByType(ProductType.getInstance(choice))) {
             sb.append("\n").append("The purchase list is empty!");
         } else {
-            ProductType type = getType(choice);
+            ProductType type = ProductType.getInstance(choice);
             sb.append("\n").append(type).append(":").append("\n");
             for (Product p : allProducts) {
                 if (p.getType().equals(type)) {
@@ -109,7 +98,9 @@ public class Purchase implements Serializable {
         StringBuilder sb = new StringBuilder("\nTypes: \n");
         Map<ProductType, Double> mapForSorting = new HashMap<>();
         for (ProductType type : ProductType.values()) {
-            mapForSorting.put(type, getTotalSumByType(type));
+            if (!type.equals(ProductType.UNDEFINED)) {
+                mapForSorting.put(type, getTotalSumByType(type));
+            }
         }
         String str = mapForSorting.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .map(entry -> entry.getKey() + " $" + String.format("%.2f", entry.getValue()))
@@ -119,7 +110,7 @@ public class Purchase implements Serializable {
     }
 
     public String showCategory(int choice) {
-        return showSortInCategory(getType(choice));
+        return showSortInCategory(ProductType.getInstance(choice));
     }
 
     private String showSortInCategory(ProductType type) {
@@ -170,7 +161,7 @@ public class Purchase implements Serializable {
     }
 
     public void savePurchases() {
-        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(FILE_NAME))){
+        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
             objectOutputStream.writeObject(this);
         } catch (IOException e) {
             e.printStackTrace();

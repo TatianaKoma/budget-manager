@@ -1,17 +1,18 @@
 package ua.griddynamics;
 
-public enum ProductType {
+public enum AddPurchaseMenu {
 
     FOOD(1, "Food"),
     CLOTHES(2, "Clothes"),
     ENTERTAINMENT(3, "Entertainment"),
     OTHER(4, "Other"),
+    BACK(5, "Back"),
     UNDEFINED(-1, "");
 
     private final int command;
     private final String description;
 
-    ProductType(int command, String description) {
+    AddPurchaseMenu(int command, String description) {
         this.command = command;
         this.description = description;
     }
@@ -24,8 +25,8 @@ public enum ProductType {
         return description;
     }
 
-    public static ProductType getInstance(int command) {
-        for (ProductType v : values()) {
+    public static AddPurchaseMenu getInstance(int command) {
+        for (AddPurchaseMenu v : values()) {
             if (v.getCommand() == command) {
                 return v;
             }
@@ -34,8 +35,8 @@ public enum ProductType {
     }
 
     public static String getMenuStr() {
-        StringBuilder str = new StringBuilder("\nChoose the type of purchase");
-        for (ProductType item : ProductType.values()) {
+        StringBuilder str = new StringBuilder("\n Choose the type of purchase");
+        for (AddPurchaseMenu item : AddPurchaseMenu.values()) {
             if (item.isUndefined()) {
                 continue;
             }
