@@ -1,4 +1,4 @@
-package ua.griddynamics;
+package menu;
 
 public enum ShowListMenu {
 
