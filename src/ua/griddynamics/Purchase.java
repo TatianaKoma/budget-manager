@@ -10,10 +10,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Purchase implements Serializable {
@@ -63,7 +60,7 @@ public class Purchase implements Serializable {
 
     public String showList(int choice) {
         StringBuilder sb = new StringBuilder();
-        if (ShowListMenu.getInstance(choice).equals(ShowListMenu.BACK)) {
+        if (ShowListMenu.getInstance(choice).equals(ShowListMenu.ALL)) {
             return showAll();
         } else if (isEmptyProductListByType(ProductType.getInstance(choice))) {
             sb.append("\n").append("The purchase list is empty!");
@@ -78,59 +75,6 @@ public class Purchase implements Serializable {
             sb.append("Total sum: $").append(String.format("%.2f", getTotalSumByType(type)));
         }
         return sb.toString();
-    }
-
-    public String showAllSortedPurchases() {
-        StringBuilder sb = new StringBuilder();
-        if (!isEmptyAllProductList()) {
-            sb.append("\nAll: \n");
-            String str = allProducts.stream()
-                    .sorted(Comparator.comparing(Product::getPrice).reversed())
-                    .map(Product::toString)
-                    .collect(Collectors.joining("\n"));
-            sb.append(str);
-            sb.append("\nTotal sum: $").append(String.format("%.2f", getTotalSumOfAllProducts()));
-            return sb.toString();
-        } else {
-            return "\nThe purchase list is empty!";
-        }
-    }
-
-    public String showSortByCategories() {
-        StringBuilder sb = new StringBuilder("\nTypes: \n");
-        Map<ProductType, Double> mapForSorting = new HashMap<>();
-        for (ProductType type : ProductType.values()) {
-            if (!type.equals(ProductType.UNDEFINED)) {
-                mapForSorting.put(type, getTotalSumByType(type));
-            }
-        }
-        String str = mapForSorting.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .map(entry -> entry.getKey() + " $" + String.format("%.2f", entry.getValue()))
-                .collect(Collectors.joining("\n"));
-        sb.append(str).append("\nTotal sum: $").append(String.format("%.2f", getTotalSumOfAllProducts()));
-        return sb.toString();
-    }
-
-    public String showCategory(int choice) {
-        return showSortInCategory(ProductType.getInstance(choice));
-    }
-
-    private String showSortInCategory(ProductType type) {
-        StringBuilder sb = new StringBuilder();
-        if (!isEmptyProductListByType(type)) {
-            sb.append("\n").append(type).append(":\n");
-
-            String str = allProducts.stream()
-                    .filter(p -> p.getType().equals(type))
-                    .sorted(Comparator.comparing(Product::getPrice).reversed())
-                    .map(Product::toString)
-                    .collect(Collectors.joining("\n"));
-            sb.append(str);
-            sb.append("\nTotal sum: $").append(String.format("%.2f", getTotalSumByType(type)));
-            return sb.toString();
-        } else {
-            return "\nThe purchase list is empty!";
-        }
     }
 
     public boolean isEmptyAllProductList() {
@@ -191,5 +135,9 @@ public class Purchase implements Serializable {
                 e.printStackTrace();
             }
         }
+    }
+
+    public List<Product> getAllProducts() {
+        return allProducts;
     }
 }

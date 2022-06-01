@@ -1,5 +1,9 @@
 package ua.griddynamics;
 
+import analyzer.AllProductsAnalyzer;
+import analyzer.Analyzer;
+import analyzer.CertainTypeAnalyzer;
+import analyzer.ProductsByTypeAnalyzer;
 import menu.AddPurchaseMenu;
 import menu.RootMenu;
 import menu.ShowListMenu;
@@ -98,25 +102,30 @@ public class Main {
     }
 
     public static void showSort(Purchase purchase) {
-        boolean isSortingStopped = false;
-        while (!isSortingStopped) {
+        SortMenu sortType = SortMenu.UNDEFINED;
+        while (!sortType.equals(SortMenu.BACK)) {
             System.out.println(SortMenu.getMenuStr());
             int choice = SCANNER.nextInt();
-            switch (SortMenu.getInstance(choice)) {
-                case SORT_ALL -> System.out.println(purchase.showAllSortedPurchases());
-                case SORT_TYPES -> System.out.println(purchase.showSortByCategories());
-                case SORT_IN_TYPE -> {
-                    System.out.println(ProductType.getMenuStr());
-                    int choiceForCategory = SCANNER.nextInt();
-                    System.out.println(purchase.showCategory(choiceForCategory));
-                }
-                case BACK -> {
-                    isSortingStopped = true;
-                    System.out.println();
-                }
-                case UNDEFINED -> {
-                }
+            sortType = SortMenu.getInstance(choice);
+            Analyzer analyzer = getAnalyzerStrategy(sortType);
+            if (analyzer != null) {
+                System.out.println(analyzer.getSortedResult(purchase));
             }
         }
+        System.out.println();
+    }
+
+    public static Analyzer getAnalyzerStrategy(SortMenu sortType) {
+        switch (sortType) {
+            case SORT_ALL:
+                return new AllProductsAnalyzer();
+            case SORT_TYPES:
+                return new ProductsByTypeAnalyzer();
+            case SORT_IN_TYPE:
+                System.out.println(ProductType.getMenuStr());
+                int choiceForCategory = SCANNER.nextInt();
+                return new CertainTypeAnalyzer(ProductType.getInstance(choiceForCategory));
+        }
+        return null;
     }
 }
