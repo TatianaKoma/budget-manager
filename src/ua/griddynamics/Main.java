@@ -1,13 +1,13 @@
 package ua.griddynamics;
 
-import analyzer.AllProductsAnalyzer;
-import analyzer.Analyzer;
-import analyzer.CertainTypeAnalyzer;
-import analyzer.ProductsByTypeAnalyzer;
-import menu.AddPurchaseMenu;
-import menu.RootMenu;
-import menu.ShowListMenu;
-import menu.SortMenu;
+import ua.griddynamics.analyzer.AllProductsAnalyzer;
+import ua.griddynamics.analyzer.Analyzer;
+import ua.griddynamics.analyzer.CertainTypeAnalyzer;
+import ua.griddynamics.analyzer.ProductsByTypeAnalyzer;
+import ua.griddynamics.menu.AddPurchaseMenu;
+import ua.griddynamics.menu.RootMenu;
+import ua.griddynamics.menu.ShowListMenu;
+import ua.griddynamics.menu.SortMenu;
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -38,11 +38,13 @@ public class Main {
                         System.out.println(ShowListMenu.getMenuStr());
                         int choiceForShowList = SCANNER.nextInt();
                         SCANNER.nextLine();
-                        if (ShowListMenu.getInstance(choiceForShowList).equals(ShowListMenu.BACK)) {
+                        ShowListMenu menu = ShowListMenu.getInstance(choiceForShowList);
+                        ProductType type = menu.getProductType();
+                        if (menu.equals(ShowListMenu.BACK)) {
                             System.out.println();
                             break;
                         } else {
-                            System.out.println(purchase.showList(choiceForShowList));
+                            System.out.println(purchase.getDescription(type));
                         }
                     }
                     break;
@@ -71,7 +73,8 @@ public class Main {
         }
     }
 
-    private static void addPurchase(Purchase purchase) {
+    private static void
+    addPurchase(Purchase purchase) {
         String name = null;
         double price = 0.0;
         while (true) {
@@ -88,7 +91,9 @@ public class Main {
                 } catch (InputMismatchException e) {
                     e.printStackTrace();
                 }
-                if (purchase.addProduct(new Product(name, price, ProductType.getInstance(choice)))) {
+                AddPurchaseMenu menuAdd = AddPurchaseMenu.getInstance(choice);
+                ProductType typeForAdd = menuAdd.getProductType();
+                if (purchase.addProduct(new Product(name, price, typeForAdd))) {
                     purchase.reduceBalance(price);
                     System.out.println("Purchase was added!");
                 } else {

@@ -1,18 +1,17 @@
-package menu;
+package ua.griddynamics.menu;
 
-public enum AddPurchaseMenu {
+public enum SortMenu {
 
-    FOOD(1, "Food"),
-    CLOTHES(2, "Clothes"),
-    ENTERTAINMENT(3, "Entertainment"),
-    OTHER(4, "Other"),
-    BACK(5, "Back"),
+    SORT_ALL(1, "Sort all purchases"),
+    SORT_TYPES(2, "Sort by type"),
+    SORT_IN_TYPE(3, "Sort certain type"),
+    BACK(4, "Back"),
     UNDEFINED(-1, "");
 
     private final int command;
     private final String description;
 
-    AddPurchaseMenu(int command, String description) {
+    SortMenu(int command, String description) {
         this.command = command;
         this.description = description;
     }
@@ -25,8 +24,8 @@ public enum AddPurchaseMenu {
         return description;
     }
 
-    public static AddPurchaseMenu getInstance(int command) {
-        for (AddPurchaseMenu v : values()) {
+    public static SortMenu getInstance(int command) {
+        for (SortMenu v : values()) {
             if (v.getCommand() == command) {
                 return v;
             }
@@ -35,8 +34,8 @@ public enum AddPurchaseMenu {
     }
 
     public static String getMenuStr() {
-        StringBuilder str = new StringBuilder("\n Choose the type of purchase");
-        for (AddPurchaseMenu item : AddPurchaseMenu.values()) {
+        StringBuilder str = new StringBuilder("\nHow do you want to sort?");
+        for (SortMenu item : SortMenu.values()) {
             if (item.isUndefined()) {
                 continue;
             }

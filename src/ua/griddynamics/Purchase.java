@@ -1,7 +1,5 @@
 package ua.griddynamics;
 
-import menu.ShowListMenu;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -58,51 +56,37 @@ public class Purchase implements Serializable {
                 .sum();
     }
 
-    public String showList(int choice) {
-        StringBuilder sb = new StringBuilder();
-        if (ShowListMenu.getInstance(choice).equals(ShowListMenu.ALL)) {
-            return showAll();
-        } else if (isEmptyProductListByType(ProductType.getInstance(choice))) {
-            sb.append("\n").append("The purchase list is empty!");
-        } else {
-            ProductType type = ProductType.getInstance(choice);
-            sb.append("\n").append(type).append(":").append("\n");
-            for (Product p : allProducts) {
-                if (p.getType().equals(type)) {
-                    sb.append(p).append("\n");
-                }
-            }
-            sb.append("Total sum: $").append(String.format("%.2f", getTotalSumByType(type)));
-        }
-        return sb.toString();
-    }
-
     public boolean isEmptyAllProductList() {
-        return allProducts.size() == 0;
+        return allProducts.isEmpty();
     }
 
     public boolean isEmptyProductListByType(ProductType type) {
-        int count = 0;
         for (Product p : allProducts) {
             if (p.getType().equals(type)) {
-                count++;
+                return false;
             }
         }
-        return count == 0;
+        return true;
     }
 
-    private String showAll() {
-        StringBuilder sb = new StringBuilder();
-        if (allProducts.isEmpty()) {
-            sb.append("\nThe purchase list is empty!");
-        } else {
-            sb.append("\nAll:\n");
-            String str = allProducts.stream()
-                    .map(Product::toString)
-                    .collect(Collectors.joining("\n"));
-            sb.append(str);
-            sb.append("\nTotal sum: $").append(String.format("%.2f", getTotalSumOfAllProducts()));
+    public String getDescription(ProductType type) {
+        List<Product> products = allProducts.stream()
+                .filter(p -> p.getType().equals(type) || type.isUndefined()).toList();
+        if (products.isEmpty()) {
+            return "\nThe purchase list is empty!";
         }
+
+        StringBuilder sb = new StringBuilder();
+        if (type.isUndefined()) {
+            sb.append("\nAll:\n");
+        } else {
+            sb.append("\n").append(type).append(":\n");
+        }
+        String str = products.stream()
+                .map(Product::toString)
+                .collect(Collectors.joining("\n"));
+        sb.append(str);
+        sb.append("\nTotal sum: $").append(String.format("%.2f", getTotalSumOfAllProducts()));
         return sb.toString();
     }
 
@@ -115,20 +99,13 @@ public class Purchase implements Serializable {
     }
 
     public void loadPurchase() {
-        boolean hasNext = true;
         if (new File(FILE_NAME).exists()) {
-            try (FileInputStream fileInputStream = new FileInputStream(FILE_NAME);
-                 ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
-                while (hasNext) {
-                    if (fileInputStream.available() != 0) {
-                        Object obj = objectInputStream.readObject();
-
-                        if (obj instanceof Purchase purchase) {
-                            balance = purchase.balance;
-                            allProducts = purchase.allProducts;
-                        }
-                    } else {
-                        hasNext = false;
+            try (ObjectInputStream ios = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
+                while (ios.available() > 0) {
+                    Object obj = ios.readObject();
+                    if (obj instanceof Purchase purchase) {
+                        balance = purchase.balance;
+                        allProducts = purchase.allProducts;
                     }
                 }
             } catch (IOException | ClassNotFoundException e) {

@@ -1,4 +1,4 @@
-package analyzer;
+package ua.griddynamics.analyzer;
 
 import ua.griddynamics.Purchase;
 

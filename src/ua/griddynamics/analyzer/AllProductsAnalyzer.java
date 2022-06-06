@@ -1,4 +1,4 @@
-package analyzer;
+package ua.griddynamics.analyzer;
 
 import ua.griddynamics.Product;
 import ua.griddynamics.Purchase;
@@ -10,14 +10,14 @@ public class AllProductsAnalyzer implements Analyzer {
 
     @Override
     public String getSortedResult(Purchase purchase) {
-        StringBuilder sb = new StringBuilder();
         if (!purchase.isEmptyAllProductList()) {
+            StringBuilder sb = new StringBuilder();
             sb.append("\nAll: \n");
-            String str = purchase.getAllProducts().stream()
+            String productListStr = purchase.getAllProducts().stream()
                     .sorted(Comparator.comparing(Product::getPrice).reversed())
                     .map(Product::toString)
                     .collect(Collectors.joining("\n"));
-            sb.append(str);
+            sb.append(productListStr);
             sb.append("\nTotal sum: $").append(String.format("%.2f", purchase.getTotalSumOfAllProducts()));
             return sb.toString();
         } else {

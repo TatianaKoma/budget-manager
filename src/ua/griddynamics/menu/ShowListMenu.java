@@ -1,21 +1,25 @@
-package menu;
+package ua.griddynamics.menu;
+
+import ua.griddynamics.ProductType;
 
 public enum ShowListMenu {
 
-    FOOD(1, "Food"),
-    CLOTHES(2, "Clothes"),
-    ENTERTAINMENT(3, "Entertainment"),
-    OTHER(4, "Other"),
-    ALL(5, "All"),
-    BACK(6, "Back"),
-    UNDEFINED(-1, "");
+    FOOD(1, "Food", ProductType.FOOD),
+    CLOTHES(2, "Clothes", ProductType.CLOTHES),
+    ENTERTAINMENT(3, "Entertainment", ProductType.ENTERTAINMENT),
+    OTHER(4, "Other", ProductType.OTHER),
+    ALL(5, "All", ProductType.UNDEFINED),
+    BACK(6, "Back", ProductType.UNDEFINED),
+    UNDEFINED(-1, "", ProductType.UNDEFINED);
 
     private final int command;
     private final String description;
+    private final ProductType productType;
 
-    ShowListMenu(int command, String description) {
+    ShowListMenu(int command, String description, ProductType productType) {
         this.command = command;
         this.description = description;
+        this.productType = productType;
     }
 
     public int getCommand() {
@@ -49,5 +53,9 @@ public enum ShowListMenu {
 
     public boolean isUndefined() {
         return this == UNDEFINED;
+    }
+
+    public ProductType getProductType() {
+        return productType;
     }
 }

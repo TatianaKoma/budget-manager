@@ -1,4 +1,4 @@
-package analyzer;
+package ua.griddynamics.analyzer;
 
 import ua.griddynamics.Product;
 import ua.griddynamics.ProductType;
@@ -17,16 +17,15 @@ public class CertainTypeAnalyzer implements Analyzer {
 
     @Override
     public String getSortedResult(Purchase purchase) {
-        StringBuilder sb = new StringBuilder();
         if (!purchase.isEmptyProductListByType(type)) {
-            sb.append("\n").append(type).append(":\n");
-
-            String str = purchase.getAllProducts().stream()
+            String sortedProductStr = purchase.getAllProducts().stream()
                     .filter(p -> p.getType().equals(type))
                     .sorted(Comparator.comparing(Product::getPrice).reversed())
                     .map(Product::toString)
                     .collect(Collectors.joining("\n"));
-            sb.append(str);
+            StringBuilder sb = new StringBuilder();
+            sb.append("\n").append(type).append(":\n");
+            sb.append(sortedProductStr);
             sb.append("\nTotal sum: $").append(String.format("%.2f", purchase.getTotalSumByType(type)));
             return sb.toString();
         } else {
