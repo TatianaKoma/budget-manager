@@ -31,13 +31,14 @@ public class Purchase implements Serializable {
         return balance.showBalance();
     }
 
-    public void reduceBalance(double delta) {
+    private void reduceBalance(double delta) {
         balance.reduceBalance(delta);
     }
 
     public boolean addProduct(Product product) {
         if (product != null) {
             allProducts.add(product);
+            reduceBalance(product.getPrice());
             return true;
         }
         return false;

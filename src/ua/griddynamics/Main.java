@@ -73,31 +73,26 @@ public class Main {
         }
     }
 
-    private static void
-    addPurchase(Purchase purchase) {
-        String name = null;
-        double price = 0.0;
+    private static void addPurchase(Purchase purchase) {
         while (true) {
             System.out.println(AddPurchaseMenu.getMenuStr());
             int choice = SCANNER.nextInt();
             SCANNER.nextLine();
-            if (!AddPurchaseMenu.getInstance(choice).equals(AddPurchaseMenu.BACK)) {
+            AddPurchaseMenu menuAdd = AddPurchaseMenu.getInstance(choice);
+            if (!menuAdd.equals(AddPurchaseMenu.BACK)) {
+                String name;
+                double price;
                 try {
                     System.out.println("\nEnter purchase name:");
                     name = SCANNER.nextLine();
                     System.out.println("Enter its price:");
                     price = SCANNER.nextDouble();
                     SCANNER.nextLine();
+                    ProductType typeForAdd = menuAdd.getProductType();
+                    purchase.addProduct(new Product(name, price, typeForAdd));
+                    System.out.println("\nPurchase was added!");
                 } catch (InputMismatchException e) {
                     e.printStackTrace();
-                }
-                AddPurchaseMenu menuAdd = AddPurchaseMenu.getInstance(choice);
-                ProductType typeForAdd = menuAdd.getProductType();
-                if (purchase.addProduct(new Product(name, price, typeForAdd))) {
-                    purchase.reduceBalance(price);
-                    System.out.println("Purchase was added!");
-                } else {
-                    System.out.println("Purchase was not added!");
                 }
             } else {
                 System.out.println();
